@@ -1,13 +1,3 @@
-using BlazorServerDemo.Areas.Identity;
-using BlazorServerDemo.Data;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.EntityFrameworkCore;
-using SecureDemoClassLibrary.Models;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
