@@ -1,6 +1,6 @@
 ﻿@page "/Users"
-@*@attribute [Authorize(Roles = "")]
-*@
+@*@attribute [Authorize(Roles = "")]*@
+
 @inject UserManager<ApplicationUser> UserMgr
 
 
@@ -8,19 +8,20 @@
 
 <p>List of users: <button class="btn alert-primary"> Add User</button></p>
 
-@if (UserList == null)
+@if (FilteredUserList == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
     <div class="form-check">
-  <input class="form-check-input" type="checkbox" value="" id="chkActiveOnly" name="chkActiveOnly" @onchange="ChkActive_Click">
-  <label class="form-check-label" for="chkActiveOnly">
-    Show active only
-  </label>
-  <input  placeholder="Search" @onchange="OnSearchTextChange" /> 
-</div>
+        <input class="form-check-input" type="checkbox" value="" id="chkActiveOnly" name="chkActiveOnly" @onchange="OnCheckChange">
+        <label class="form-check-label" for="chkActiveOnly">
+            Show active only
+        </label>
+        <input placeholder="Search" @bind="searchTerm"/>
+        <button class="btn btn-sm btn-primary" @onclick="@FilterUserList">Filter</button>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -28,13 +29,13 @@ else
                 <th>Last Name</th>
                 <th>User Name</th>
                 <th>Entity Type</th>
-                 <th>Email</th>
+                <th>Email</th>
                 <th>Phone#</th>
                 <th>Active</th>
-           </tr>
+            </tr>
         </thead>
         <tbody>
-            @foreach (ApplicationUser user in UserList)
+            @foreach (ApplicationUser user in FilteredUserList)
             {
                 <tr>
                     <td>@user.FirstName</td>
@@ -42,8 +43,8 @@ else
                     <td>@user.UserName</td>
                     <td>@user.UserEntityType</td>
                     <td>@user.Email</td>
-                    <td>@user.PhoneNumber</td>                
-                    <td>@user.IsActive</td>                
+                    <td>@user.PhoneNumber</td>
+                    <td>@user.IsActive</td>
                 </tr>
             }
         </tbody>
@@ -52,44 +53,43 @@ else
 
 @code {
 
-    private List<ApplicationUser> AllUserList=new List<ApplicationUser>();
-    private List<ApplicationUser> UserList=new List<ApplicationUser>();
-    public bool showActive{ get; set; }
+    private List<ApplicationUser> AllUserList = new List<ApplicationUser>();
+    private List<ApplicationUser> FilteredUserList = new List<ApplicationUser>();
+    public bool showActive = false;
+    public string searchTerm = "";
 
     protected override async Task OnInitializedAsync()
     {
         AllUserList = await UserMgr.Users.ToListAsync();
-        UserList = AllUserList.ToList();
+        FilteredUserList = AllUserList.ToList();
     }
 
-    private async Task ChkActive_Click(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+    private async Task OnCheckChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
     {
         if (args != null && args.Value != null)
-        {
             showActive = (bool)args.Value;
-            if (showActive)
-                UserList = AllUserList.Where(u => u.IsActive == true).ToList();
-            else
-                UserList = AllUserList.ToList();
-        }
+        else
+            showActive = false;
+
+        FilterUserList();
     }
 
-    private void OnSearchTextChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+    private void FilterUserList()
     {
-        string? term = args?.Value?.ToString();
+        string term = string.IsNullOrWhiteSpace(searchTerm) ? "" : searchTerm.ToUpper();
         if (!string.IsNullOrWhiteSpace(term))
         {
             if (showActive)
-                UserList = AllUserList.Where(u => (u.IsActive == true && (u.FirstName.Contains(term) || u.LastName.Contains(term)))).ToList();
+                FilteredUserList = AllUserList.Where(u => (u.IsActive == true && (u.FirstName.ToUpper().Contains(term) || u.LastName.ToUpper().Contains(term)))).ToList();
             else
-                UserList = AllUserList.Where(u => (u.FirstName.Contains(term) || u.LastName.Contains(term))).ToList();
+                FilteredUserList = AllUserList.Where(u => (u.FirstName.ToUpper().Contains(term) || u.LastName.ToUpper().Contains(term))).ToList();
         }
         else
         {
             if (showActive)
-                UserList = AllUserList.Where(u => u.IsActive == true).ToList();
+                FilteredUserList = AllUserList.Where(u => u.IsActive == true).ToList();
             else
-                UserList = AllUserList.ToList();
+                FilteredUserList = AllUserList.ToList();
         }
 
     }

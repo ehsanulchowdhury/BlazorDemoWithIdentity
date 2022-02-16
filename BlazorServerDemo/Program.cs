@@ -1,4 +1,6 @@
 
+using SecureDemoClassLibrary.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +14,15 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<IEmailSender, SmtpEmailService>(i =>
+    new SmtpEmailService(
+        builder.Configuration["EmailSender:Host"],
+        builder.Configuration.GetValue<int>("EmailSender:Port"),
+        builder.Configuration.GetValue<bool>("EmailSender:EnableSsl"),
+        builder.Configuration["EmailSender:UserName"],
+        builder.Configuration["EmailSender:Password"]));
 
 var app = builder.Build();
 

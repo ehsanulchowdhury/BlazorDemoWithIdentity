@@ -1,0 +1,46 @@
+﻿@page "/UserProfile"
+
+@inject UserManager<ApplicationUser> _userManager
+@inject IHttpContextAccessor httpContextAccessor
+
+<h3>Profile</h3>
+<div class="row">
+    <div class="col-md-6">
+        <form id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-floating">
+                <input asp-for="user.Username" class="form-control" disabled />
+                <label asp-for="user.Username" class="form-label"></label>
+            </div>
+
+            <div class="form-floating">
+                <input asp-for="user.FirstName" class="form-control" />
+                <label asp-for="user.FirstName" class="form-label"></label>
+            </div>
+
+            <div class="form-floating">
+                <input asp-for="user.LastName" class="form-control" />
+                <label asp-for="user.LastName" class="form-label"></label>
+            </div>
+
+            <div class="form-floating">
+                <input asp-for="user.PhoneNumber" class="form-control" />
+                <label asp-for="user.PhoneNumber" class="form-label"></label>
+                <span asp-validation-for="user.PhoneNumber" class="text-danger"></span>
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+@code {
+    private ApplicationUser user;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        string user = httpContextAccessor.HttpContext.User.Identity.Name;
+    }
+}
