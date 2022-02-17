@@ -1,0 +1,45 @@
+﻿@page "/Roles"
+@*@attribute [Authorize(Roles = "")]*@
+
+@inject RoleManager<IdentityRole> _roleManager
+
+
+<h3>Roles</h3>
+
+<p>List of Roles: <a href="UserAddEdit/0" class="btn alert-primary">Add Role</a></p>
+
+@if (RoleLists == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Role Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (IdentityRole role in RoleLists)
+            {
+                <tr>
+                    <td>@role.Name</td>
+                    <td>
+                        @*<a href="UserAddEdit/@user.Id">Edit</a>*@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<IdentityRole>? RoleLists;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RoleLists = await _roleManager.Roles.ToListAsync();
+    }
+}

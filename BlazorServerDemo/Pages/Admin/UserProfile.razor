@@ -2,37 +2,64 @@
 
 @inject UserManager<ApplicationUser> _userManager
 @inject IHttpContextAccessor _httpContextAccessor
+@inject NavigationManager _navigation
 
 <h3>Profile</h3>
-<div class="row">
+<div class="row py-3">
     <div class="col-md-6">
-        <form id="profile-form" method="post">
+        <EditForm Model="user" OnSubmit="@SaveUserProfile">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-floating">
-                <input class="form-control" disabled />
-                <label class="form-label">@user.UserName</label>
-            </div>
-
-            @*<div class="form-floating">
-                <input asp-for="user.FirstName" class="form-control" />
-                <label asp-for="user.FirstName" class="form-label"></label>
+                <input @bind-value="user.UserName" class="form-control" />
+                <label class="form-label">User Name</label>
             </div>
 
             <div class="form-floating">
-                <input asp-for="user.LastName" class="form-control" />
-                <label asp-for="user.LastName" class="form-label"></label>
+                <input @bind-value="user.FirstName" class="form-control" />
+                <label class="form-label">First Name</label>
             </div>
 
             <div class="form-floating">
-                <input asp-for="user.PhoneNumber" class="form-control" />
-                <label asp-for="user.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="user.PhoneNumber" class="text-danger"></span>
-            </div>*@
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </form>
+                <input @bind-value="user.LastName" class="form-control" />
+                <label class="form-label">Last Name</label>
+            </div>
+
+            <div class="form-control">
+                <input type="checkbox" @bind="user.IsActive" />
+                <label class="form-label">Is Active</label>
+            </div>
+
+            <div class="form-floating">
+                <input @bind-value="user.Email" class="form-control" />
+                <label class="form-label">E-mail</label>
+            </div>
+
+            <div class="form-control">
+                <input type="checkbox" @bind="user.EmailConfirmed" />
+                <label class="form-label">Email Confirmed</label>
+            </div>
+
+            <div class="form-floating">
+                <input @bind-value="user.PhoneNumber" class="form-control" />
+                <label class="form-label">Phone No</label>
+            </div>
+
+            <div class="form-control">
+                <input type="checkbox" @bind="user.PhoneNumberConfirmed" />
+                <label class="form-label">Phone Number Confirmed</label>
+            </div>
+
+            <div class="form-control">
+                <input type="checkbox" @bind="user.TwoFactorEnabled" />
+                <label class="form-label">Two Factor Enabled</label>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </EditForm>
     </div>
 </div>
+
+
 
 @code {
     private ApplicationUser user;
@@ -42,6 +69,22 @@
         string userEmail = _httpContextAccessor.HttpContext.User.GetLoggedInUserEmail();
 
         user = await _userManager.FindByEmailAsync(userEmail);
-
     }
+
+    private async Task SaveUserProfile()
+    {
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+            _navigation.NavigateTo("UserProfile");
+        //if (!result.Succeeded)
+        //{
+        //    StatusMessage = "Unexpected error when trying to set phone number.";
+        //    return RedirectToPage();
+        //}
+
+        //await _signInManager.RefreshSignInAsync(user);
+        //StatusMessage = "Your profile has been updated";
+        //return ;
+    }
+
 }
