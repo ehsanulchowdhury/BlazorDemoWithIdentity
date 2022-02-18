@@ -1,7 +1,8 @@
 ﻿@page "/Users"
-@*@attribute [Authorize(Roles = "")]*@
+@attribute [Authorize(Roles="Admin")]
 
 @inject UserManager<ApplicationUser> UserMgr
+@inject AuthenticationStateProvider AuthState
 
 
 <h3>Users</h3>
@@ -66,6 +67,14 @@ else
     {
         AllUserList = await UserMgr.Users.ToListAsync();
         FilteredUserList = AllUserList.ToList();
+
+        var x = UserMgr.GetUsersInRoleAsync("Admin");
+        //var authState = await authenticationStateTask;
+        //var user = authState.User;        
+        //var r = UserMgr.IsInRoleAsync()
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        var z = auth.User.Identity.Name;
+
     }
 
     private async Task OnCheckChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)

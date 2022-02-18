@@ -1,5 +1,6 @@
 
 using SecureDemoClassLibrary.Services;
+using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddTransient<IEmailSender, SmtpEmailService>(i =>
         builder.Configuration.GetValue<bool>("EmailSender:EnableSsl"),
         builder.Configuration["EmailSender:UserName"],
         builder.Configuration["EmailSender:Password"]));
+builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });
 
 var app = builder.Build();
 
