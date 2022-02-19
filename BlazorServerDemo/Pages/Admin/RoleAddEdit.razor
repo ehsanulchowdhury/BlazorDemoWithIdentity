@@ -1,0 +1,70 @@
+﻿@page "/RoleAddEdit"
+@page "/RoleAddEdit/{id}"
+
+@inject RoleManager<IdentityRole> _roleManager;
+@inject NavigationManager _navigation
+
+<h3>@Title</h3>
+
+<EditForm Model="@IdentityRole" OnSubmit="@SaveRole">
+    <div class="row py-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">Role Name</label>
+                <input @bind-value="IdentityRole!.Name" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div>
+                <button class="btn btn-primary mt-3">@ButtonTitle</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    private string? Title;
+    private string? ButtonTitle;
+    private IdentityRole? IdentityRole;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Title = "Add Role";
+            ButtonTitle = "Add";
+            IdentityRole = new();
+        }
+        else
+        {
+            Title = "Edit Role";
+            ButtonTitle = "Update";
+            IdentityRole = await _roleManager.FindByIdAsync(Id);
+            if (IdentityRole == null)
+                throw new ApplicationException("Role Not Found");
+        }
+    }
+
+    private async Task SaveRole()
+    {
+        IdentityResult result;
+
+        result = string.IsNullOrWhiteSpace(Id) ? await _roleManager.CreateAsync(IdentityRole) : await _roleManager.UpdateAsync(IdentityRole);
+
+        if (result.Succeeded)
+        {
+            _navigation.NavigateTo("Roles");
+        }
+        else
+        {
+
+        }
+    }
+}
+

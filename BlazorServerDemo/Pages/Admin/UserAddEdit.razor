@@ -36,14 +36,14 @@
         </div>
         <div class="col-md-6 mt-3">
             <div class="form-group">
-                <label class="form-label">User Entity</label>
-                <input @bind-value="user.UserEntityType" class="form-control" />
+                <label class="form-label">E-mail</label>
+                <input @bind-value="user.Email" class="form-control" />
             </div>
         </div>
         <div class="col-md-6 mt-3">
             <div class="form-group">
-                <label class="form-label">E-mail</label>
-                <input @bind-value="user.Email" class="form-control" />
+                <label class="form-label">User Entity</label>
+                <input @bind-value="user.UserEntityType" class="form-control" />
             </div>
         </div>
         <div class="col-md-6 mt-3">
@@ -64,7 +64,6 @@
                 <input @bind-value="user.PhoneNumber" class="form-control" />
             </div>
         </div>
-
         <div class="col-md-4 mt-3">
             <input class="form-check-input" type="checkbox" @bind="user.IsActive" />
             <label class="form-check-label">Is Active</label>

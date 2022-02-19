@@ -1,0 +1,106 @@
+﻿@page "/RoleClaim/{roleId}"
+@using SecureDemoClassLibrary.Helpers
+@inject RoleManager<IdentityRole> _roleManager
+
+<h4>Role : @role.Name</h4>
+
+All Claims:
+<br />
+<div class="row">
+    @foreach (var claim in allClaims)
+    {
+        <div class="col-md-4">
+            <input class="form-check-input" type="checkbox" @onchange="eventArgs => { CheckboxClicked(claim, eventArgs.Value); }" />
+            <label class="form-check-label">@claim</label>
+        </div>
+    }
+
+    <div class="col-md-12">
+        <button class="btn btn-outline-primary" @onclick="AssignClaimsToToleAsync">Add</button>
+    </div>
+
+    @if (roleClaims != null)
+    {
+        <div class="col-md-6">
+            <table class="table table-bordered mt-4">
+                <thead>
+                    <tr>
+                        <th>Role Name</th>
+                        <th>Allow / Deny</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in roleClaims)
+                    {
+                        <tr>
+                            <td>@item.Type</td>
+                            <td>
+                                @item.Value
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? RoleId { get; set; }
+
+    IdentityRole? role;
+    public List<string> allowClaims { get; set; } = new List<string>();
+    private List<string> allClaims;
+    private List<string> denyClaims;
+    private IList<Claim> roleClaims;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await _roleManager.FindByIdAsync(RoleId);
+        allClaims = Enum.GetNames(typeof(UserClaims)).ToList();
+        roleClaims = await _roleManager.GetClaimsAsync(role);
+    }
+
+    private void CheckboxClicked(string CheckID, object checkedValue)
+    {
+        if ((bool)checkedValue)
+        {
+            if (!allowClaims.Contains(CheckID))
+            {
+                allowClaims.Add(CheckID);
+            }
+        }
+        else
+        {
+            if (allowClaims.Contains(CheckID))
+            {
+                allowClaims.Remove(CheckID);
+            }
+        }
+    }
+
+    private async Task AssignClaimsToToleAsync()
+    {
+
+        List<Claim> newClaims = new List<Claim>();
+        foreach (var claimName in allowClaims)
+            newClaims.Add(new Claim(claimName, "Allow"));
+
+        foreach (var claimName in allClaims.Except(allowClaims).ToList())
+            newClaims.Add(new Claim(claimName, "Deny"));
+
+        var currentClaims = await _roleManager.GetClaimsAsync(role); //Get all current claims
+
+        foreach (var claim in currentClaims)
+            await _roleManager.RemoveClaimAsync(role, claim); //Remove all current claims
+
+        foreach (var claim in newClaims)
+            await _roleManager.AddClaimAsync(role, claim); //Add new claims
+
+        roleClaims = await _roleManager.GetClaimsAsync(role);
+    }
+
+
+}

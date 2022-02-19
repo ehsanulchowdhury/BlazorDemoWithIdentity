@@ -48,7 +48,9 @@ else
                     <td>@user.PhoneNumber</td>
                     <td>@user.IsActive</td>
                     <td>
-                        <a href="UserAddEdit/@user.Id">Edit</a>
+                        <a href="UserAddEdit/@user.Id" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="UserRole/@user.Id" class="btn btn-sm btn-secondary">Role</a>
                     </td>
                 </tr>
             }

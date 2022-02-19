@@ -1,0 +1,117 @@
+﻿@page "/UserRole/{userId}"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject UserManager<ApplicationUser> _userManager
+@inject RoleManager<IdentityRole> _roleManager
+@inject NavigationManager _navigation
+
+
+<h3>User Role</h3>
+
+<h4>User : @userFullName</h4>
+
+<div class="row py-3">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="form-label">Roles</label>
+            <select @bind="selectedRole" class="form-control">
+                <option value=""> -- Select a role -- </option>
+                @foreach (var role in identityRoles)
+                {
+                    <option value="@role.Name">@role.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-md-12 mt-3">
+        <button class="btn btn-outline-success" @onclick="SaveUserRole">Save</button>
+    </div>
+
+    <div class="col-md-6">
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Role Name</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in roleOfUser)
+                {
+                    <tr>
+                        <td>@item</td>
+                        <td>
+                            <a class="btn btn-sm btn-danger" @onclick="() => RemoveRoleFromUser(item)">Remove</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+@code {
+
+    [Parameter]
+    public string? UserId { get; set; }
+
+    private ApplicationUser? applicationUser;
+    private List<IdentityRole> identityRoles;
+    private IList<string>? roleOfUser;
+    private string? selectedRole = "";
+    private string userFullName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        identityRoles = await _roleManager.Roles.ToListAsync();
+
+        if (string.IsNullOrWhiteSpace(UserId))
+            throw new ApplicationException("User Id not found");
+
+        applicationUser = await _userManager.FindByIdAsync(UserId);
+
+        if (applicationUser == null)
+            throw new ApplicationException("User not found");
+        userFullName = applicationUser.FirstName + " " + applicationUser.LastName; 
+        await LoadAllRoleOfUsers();
+    }
+
+    private async Task SaveUserRole()
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+            throw new ApplicationException("User Id not found");
+
+        if (await _userManager.IsInRoleAsync(applicationUser, selectedRole))
+            throw new ApplicationException("Role already assigned");
+
+        var result = await _userManager.AddToRoleAsync(applicationUser, selectedRole);
+        if (result.Succeeded)
+        {
+            await LoadAllRoleOfUsers();
+        }
+    }
+
+    private async Task LoadAllRoleOfUsers()
+    {
+        roleOfUser = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(UserId));
+    }
+
+    private async Task RemoveRoleFromUser(string roleName)
+    {
+
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            throw new ApplicationException("Role Name cannot be empty");
+        }
+
+        var result = await _userManager.RemoveFromRoleAsync(applicationUser, roleName);
+        if (result.Succeeded)
+        {
+            await LoadAllRoleOfUsers();
+        }
+
+    }
+}

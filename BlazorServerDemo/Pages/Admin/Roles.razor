@@ -1,12 +1,13 @@
 ﻿@page "/Roles"
-@*@attribute [Authorize(Roles = "")]*@
+@attribute [Authorize(Roles = "Admin")]
 
+@inject UserManager<ApplicationUser> _userManager
 @inject RoleManager<IdentityRole> _roleManager
 
 
 <h3>Roles</h3>
 
-<p>List of Roles: <a href="UserAddEdit/0" class="btn alert-primary">Add Role</a></p>
+<p>List of Roles: <a href="RoleAddEdit" class="btn alert-primary">Add Role</a></p>
 
 @if (RoleLists == null)
 {
@@ -14,7 +15,7 @@
 }
 else
 {
-    <table class="table">
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Role Name</th>
@@ -27,7 +28,9 @@ else
                 <tr>
                     <td>@role.Name</td>
                     <td>
-                        @*<a href="UserAddEdit/@user.Id">Edit</a>*@
+                        <a href="RoleAddEdit/@role.Id" class="btn btn-sm btn-primary">Edit</a> |
+                        <a @onclick="() => DeleteRole(role.Name)" class="btn btn-sm btn-danger">Delete</a> | 
+                        <a href="RoleClaim/@role.Id" class="btn btn-sm btn-success">Claims</a>
                     </td>
                 </tr>
             }
@@ -41,5 +44,12 @@ else
     protected override async Task OnInitializedAsync()
     {
         RoleLists = await _roleManager.Roles.ToListAsync();
+    }
+
+    private async Task DeleteRole(string roleName)
+    {
+        IList<ApplicationUser> usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
+        if (usersInRole.Count > 0)
+            throw new ApplicationException("You cannot remove the role because it is in use");
     }
 }
