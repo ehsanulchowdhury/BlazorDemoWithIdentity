@@ -17,6 +17,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });
 builder.Services.AddTransient<IEmailSender, SmtpEmailService>(i =>
     new SmtpEmailService(
         builder.Configuration["EmailSender:Host"],
@@ -24,7 +25,7 @@ builder.Services.AddTransient<IEmailSender, SmtpEmailService>(i =>
         builder.Configuration.GetValue<bool>("EmailSender:EnableSsl"),
         builder.Configuration["EmailSender:UserName"],
         builder.Configuration["EmailSender:Password"]));
-builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });
+
 
 var app = builder.Build();
 

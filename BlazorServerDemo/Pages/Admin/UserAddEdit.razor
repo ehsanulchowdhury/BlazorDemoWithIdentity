@@ -10,7 +10,7 @@
 @inject IEmailSender _emailSender
 @inject NavigationManager MyNavigationManager
 
-<h3>Profile</h3>
+<h3>User Profile</h3>
 
 <partial name="_StatusMessage" for="StatusMessage" />
 <EditForm Model="@user" OnSubmit="@SaveUserProfile">
@@ -24,8 +24,20 @@
         </div>
         <div class="col-md-6">
             <div class="form-group">
+                <label class="form-label">User Entity</label>
+                <input @bind-value="user.UserEntityType" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-6 mt-3">
+            <div class="form-group">
                 <label class="form-label">Last Name</label>
                 <input @bind-value="user.LastName" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-6 mt-3">
+            <div class="form-group">
+                <label class="form-label">Phone No</label>
+                <input @bind-value="user.PhoneNumber" class="form-control" />
             </div>
         </div>
         <div class="col-md-6 mt-3">
@@ -36,20 +48,14 @@
         </div>
         <div class="col-md-6 mt-3">
             <div class="form-group">
-                <label class="form-label">E-mail</label>
-                <input @bind-value="user.Email" class="form-control" />
-            </div>
-        </div>
-        <div class="col-md-6 mt-3">
-            <div class="form-group">
-                <label class="form-label">User Entity</label>
-                <input @bind-value="user.UserEntityType" class="form-control" />
-            </div>
-        </div>
-        <div class="col-md-6 mt-3">
-            <div class="form-group">
                 <label class="form-label">Password</label>
                 <input type="password" @bind-value="Password" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-6 mt-3">
+            <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input @bind-value="user.Email" class="form-control" />
             </div>
         </div>
         <div class="col-md-6 mt-3">
@@ -58,12 +64,7 @@
                 <input type="password" @bind-value="ConfirmPassword" class="form-control" />
             </div>
         </div>
-        <div class="col-md-6 mt-3">
-            <div class="form-group">
-                <label class="form-label">Phone No</label>
-                <input @bind-value="user.PhoneNumber" class="form-control" />
-            </div>
-        </div>
+
         <div class="col-md-4 mt-3">
             <input class="form-check-input" type="checkbox" @bind="user.IsActive" />
             <label class="form-check-label">Is Active</label>

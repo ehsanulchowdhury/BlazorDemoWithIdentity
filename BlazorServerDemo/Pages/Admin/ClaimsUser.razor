@@ -1,8 +1,9 @@
-﻿@page "/RoleClaim/{roleId}"
+﻿@page "/UserClaim/{userId}"
 @using SecureDemoClassLibrary.Helpers
 @inject RoleManager<IdentityRole> _roleManager
+@inject UserManager<ApplicationUser> _userManager
 
-<h4>Role : @role.Name</h4>
+<h4>User : @user.FirstName @user.LastName </h4>
 
 All Claims:
 <br />
@@ -16,10 +17,10 @@ All Claims:
     }
 
     <div class="col-md-12">
-        <button class="btn btn-outline-primary mt-4" @onclick="AssignClaimsToRoleAsync">Add</button>
+        <button class="btn btn-outline-primary mt-4" @onclick="AssignClaimsToUserAsync">Add</button>
     </div>
 
-    @if (roleClaims != null)
+    @if (userClaims != null)
     {
         <div class="col-md-6">
             <table class="table table-bordered mt-4">
@@ -31,7 +32,7 @@ All Claims:
                 </thead>
 
                 <tbody>
-                    @foreach (var item in roleClaims)
+                    @foreach (var item in userClaims)
                     {
                         <tr>
                             <td>@item.Type</td>
@@ -48,19 +49,19 @@ All Claims:
 
 @code {
     [Parameter]
-    public string? RoleId { get; set; }
+    public string? UserId { get; set; }
 
-    IdentityRole? role;
+    ApplicationUser? user;
     public List<string> allowClaims { get; set; } = new List<string>();
     private List<string>? allClaims;
     private List<string>? denyClaims;
-    private IList<Claim>? roleClaims;
+    private IList<Claim>? userClaims;
 
     protected override async Task OnInitializedAsync()
     {
-        role = await _roleManager.FindByIdAsync(RoleId);
+        user = await _userManager.FindByIdAsync(UserId);
         allClaims = Enum.GetNames(typeof(UserClaims)).ToList();
-        roleClaims = await _roleManager.GetClaimsAsync(role);
+        userClaims = await _userManager.GetClaimsAsync(user);
     }
 
     private void CheckboxClicked(string CheckID, object checkedValue)
@@ -81,7 +82,7 @@ All Claims:
         }
     }
 
-    private async Task AssignClaimsToRoleAsync()
+    private async Task AssignClaimsToUserAsync()
     {
 
         List<Claim> newClaims = new List<Claim>();
@@ -91,20 +92,21 @@ All Claims:
         foreach (var claimName in allClaims.Except(allowClaims).ToList())
             newClaims.Add(new Claim(claimName, "Deny"));
 
-        var currentClaims = await _roleManager.GetClaimsAsync(role); //Get all current claims
+
+        var currentClaims = await _userManager.GetClaimsAsync(user); //Get all current claims
 
         foreach (var claim in currentClaims)
-            await _roleManager.RemoveClaimAsync(role, claim); //Remove all current claims
+            await _userManager.RemoveClaimAsync(user, claim); //Remove all current claims
 
         foreach (var claim in newClaims)
-            await _roleManager.AddClaimAsync(role, claim); //Add new claims
+            await _userManager.AddClaimAsync(user, claim); //Add new claims
 
-        roleClaims = await _roleManager.GetClaimsAsync(role);
+        userClaims = await _userManager.GetClaimsAsync(user);
     }
 
     private bool CheckClaimAllowOrDeny(string claim)
     {
-        foreach (Claim claimName in roleClaims)
+        foreach (Claim claimName in userClaims)
         {
             if (claimName.Type == claim && claimName.Value == "Allow")
                 return true;
