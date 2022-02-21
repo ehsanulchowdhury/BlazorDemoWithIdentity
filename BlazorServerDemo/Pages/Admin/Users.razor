@@ -1,13 +1,12 @@
 ﻿@page "/Users"
-@attribute [Authorize(Roles="Admin")]
+@attribute [Authorize(Roles = "Admin")]
 
 @inject UserManager<ApplicationUser> UserMgr
 @inject AuthenticationStateProvider AuthState
 
-
 <h3>Users</h3>
 
-<p>List of users: <a href="UserAddEdit" class="btn alert-primary">Add User</a></p>
+<p>List of users: <button href="UserAddEdit" class="btn alert-primary">Add User</button></p>
 
 @if (FilteredUserList == null)
 {
@@ -20,7 +19,7 @@ else
         <label class="form-check-label" for="chkActiveOnly">
             Show active only
         </label>
-        <input placeholder="Search" @bind="searchTerm"/>
+        <input placeholder="Search" @bind="searchTerm" />
         <button class="btn btn-sm btn-primary" @onclick="@FilterUserList">Filter</button>
     </div>
     <table class="table">
@@ -61,6 +60,7 @@ else
 
 @code {
 
+
     private List<ApplicationUser> AllUserList = new List<ApplicationUser>();
     private List<ApplicationUser> FilteredUserList = new List<ApplicationUser>();
     public bool showActive = false;
@@ -73,7 +73,7 @@ else
 
         var x = UserMgr.GetUsersInRoleAsync("Admin");
         //var authState = await authenticationStateTask;
-        //var user = authState.User;        
+        //var user = authState.User;
         //var r = UserMgr.IsInRoleAsync()
         var auth = await AuthState.GetAuthenticationStateAsync();
         var z = auth.User.Identity.Name;

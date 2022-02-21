@@ -8,8 +8,25 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
+<button class="btn btn-primary" @onclick = "ShowConfirmationDialog2">Show Confirmation</button>
+@result
 
 @code{
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+	private string result;
+
+	private void ShowConfirmationDialog2()
+	{
+		DlgConfirmation dlg = new DlgConfirmation(){
+			Header = "Delete Confirmation",
+			Content = "Are you sure to delete",
+			Visible = false,
+			
+		};
+		
+		dlg.Show();
+		result = dlg.Response;
+	}
 }

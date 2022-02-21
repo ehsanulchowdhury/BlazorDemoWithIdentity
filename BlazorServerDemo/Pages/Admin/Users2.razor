@@ -1,7 +1,8 @@
 ﻿@page "/Users2"
-@attribute [Authorize(Roles = "Admin")]
 @using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@attribute [Authorize(Roles = "Admin")]
+
 @inject UserManager<ApplicationUser> UserMgr
 @inject AuthenticationStateProvider AuthState
 
@@ -27,10 +28,10 @@ else
         <button class="btn btn-sm btn-primary" @onclick="@FilterUserList">Filter</button>
     </div>
 
-
-
-    <SfGrid DataSource="@FilteredUserList" class="mt-4" AllowPaging="true" AllowSorting="true" AllowFiltering="false" Toolbar=@(new List<string>() { "Search" })>
-        <GridPageSettings PageSize="5"></GridPageSettings>
+    <SfGrid DataSource="@FilteredUserList" AllowPaging="true" AllowFiltering="true" AllowSorting="true" Toolbar="@(new string[] { "Add", "Edit", "Delete", "Cancel", "Update", "Search" })" >
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu"></GridFilterSettings>
+    <GridEvents OnToolbarClick="ToolbarClickHandler" TValue="ApplicationUser"></GridEvents>
+    <GridPageSettings PageSize="5"></GridPageSettings>
         <GridColumns>
             <GridColumn Field=@nameof(ApplicationUser.FirstName) HeaderText="First Name" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(ApplicationUser.LastName) HeaderText="Last Name" AutoFit="true"></GridColumn>
@@ -38,7 +39,7 @@ else
             <GridColumn Field=@nameof(ApplicationUser.IsActive) HeaderText="Is Active" AutoFit="true" DisplayAsCheckBox="true"></GridColumn>
             <GridColumn Field=@nameof(ApplicationUser.UserName) HeaderText="User Name" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(ApplicationUser.Email) HeaderText="Email" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(ApplicationUser.EmailConfirmed) HeaderText="Email Confirmed" AutoFit="true" DisplayAsCheckBox="true">
+            <GridColumn Field=@nameof(ApplicationUser.EmailConfirmed) HeaderText="EC" AutoFit="true" DisplayAsCheckBox="true">
             </GridColumn>
             @*<GridColumn Field=@nameof(ApplicationUser.PhoneNumber) HeaderText="Phone Number"></GridColumn>*@
             @*<GridColumn Field=@nameof(ApplicationUser.PhoneNumberConfirmed) HeaderText="PN Confirmed"></GridColumn>*@
@@ -97,10 +98,13 @@ else
 }
 
 <style>
-     .e-grid .e-headercell{ 
-        background-color:#494089; 
-        color:white;
-        
+   .e-grid .e-gridheader .e-headercell{ 
+        background-color:#494089;
+        color:white;    
+        font-size:x-large;
+    } 
+       .e-grid .e-gridheader .e-headercell .e-icon{ 
+        color:white;    
     } 
 </style>
 
@@ -123,6 +127,18 @@ else
         var auth = await AuthState.GetAuthenticationStateAsync();
         var z = auth.User.Identity.Name;
 
+    }
+
+    public void ToolbarClickHandler(ClickEventArgs args)
+    {
+        if (args.Item.Text == "Add")
+        {
+            throw new ApplicationException("Add Clicked");
+        }
+        if (args.Item.Text == "Delete")
+        {
+            //perform your actions here
+        }
     }
 
     private async Task OnCheckChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
@@ -154,4 +170,4 @@ else
         }
 
     }
-            }
+}

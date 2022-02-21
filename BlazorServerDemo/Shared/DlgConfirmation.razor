@@ -1,0 +1,61 @@
+﻿@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+
+    <SfDialog @ref="DlgObject" Width="400px" ShowCloseIcon="false" @bind-Visible="@Visible" AllowPrerender="true" IsModal="true">
+        <DialogTemplates>
+            <Header>@Header</Header>
+                <Content> 
+                    @Content
+                </Content>
+                <FooterTemplate>
+                    <div class="text-center">
+                    <button class="btn btn-outline-warning" type="button" @onclick="OnNoClick">No</button>
+                    <button class="btn btn-outline-primary" type="button" @onclick="OnYesClick">Yes</button>
+                    </div>
+                </FooterTemplate>
+        </DialogTemplates>
+    </SfDialog>
+
+
+<style>
+.e-dialog .e-dlg-header {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.e-dialog .e-dlg-header-content {
+    background-color: #494089;
+}
+.e-dialog .e-dlg-content {
+    margin-top: 20px;
+}
+</style>
+
+
+@code {
+    SfDialog DlgObject;
+    [Parameter] public bool Visible { get; set; } = false;
+    [Parameter] public string Header { get; set; } = "Confirmation";
+    [Parameter] public string Content { get; set; } = "Are you sure?";
+    [Parameter] public string Response { get; set; } = "";
+    [Parameter] public EventCallback<string> ResponseChanged { get; set; }
+
+
+    public void Show() 
+    {
+        DlgObject.Show(); 
+    } 
+    private Task OnNoClick()
+    {
+        Response = "No";
+        DlgObject.Hide(); 
+        return ResponseChanged.InvokeAsync(Response);
+    }
+    private Task OnYesClick()
+    {
+        Response = "Yes";
+        DlgObject.Hide(); 
+        return ResponseChanged.InvokeAsync(Response);
+    }
+}
