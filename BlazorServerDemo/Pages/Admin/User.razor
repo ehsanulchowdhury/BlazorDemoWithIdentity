@@ -1,0 +1,138 @@
+﻿@page "/User"
+@page "/User/{userId}"
+
+
+@inject UserManager<ApplicationUser> _userManager
+@inject RoleManager<IdentityRole> _roleManager
+@inject NavigationManager _navigationManager
+
+
+<h3>@_pageTitle</h3>
+
+@if(_user == null)
+{
+    <p>User not found...</p>
+}
+else{
+    <div style="display:flex;justify-content:initial;">
+    <div class="card" style="width:20rem;">
+        <div class="card-header"><button class="btn btn-outline-primary" >Import User</button></div>
+      <div class="card-body">
+        <p class="card-text">
+               <div class="form-outline">
+                  <label class="form-label" for="fName">First Name</label>
+                  <input type="text" id="fName" class="form-control" required="true" @bind=_user.FirstName />
+                </div>
+            </p>
+            <p class="card-text">
+                <div class="form-outline">
+                  <label class="form-label" for="lName">Last Name</label>
+                  <input type="text" id="lName" class="form-control" required="true" @bind=_user.LastName />
+                </div>       
+                </p>
+             <p class="card-text">
+               <div class="form-outline">
+                  <label class="form-label" for="email">Email</label>
+                  <input type="text" id="email" class="form-control" required="true" @bind=_user.Email />
+                </div> 
+                </p>
+            <p class="card-text">
+                <div class="form-outline">
+                  <label class="form-label" for="phone">Phone#</label>
+                  <input type="text" id="phone" class="form-control" required="true" @bind=_user.PhoneNumber />
+                </div> 
+          </p>
+            <p class="card-text">
+                <div class="form-outline">
+                  <input type="checkbox" id="sendEmail" class="form-check-input" @bind="_sendActivationEmail" />
+                  <label class="form-check-label" for="sendEmail">Send activation email</label>
+                </div> 
+          </p>            
+        </div>
+      <div class="card-footer clearfix">
+        <button class="btn btn-outline-danger" @onclick="@(()=>_navigationManager.NavigateTo(_navigateTo))" >Cancel</button>
+        <button class="btn btn-outline-success" @onclick="OnSaveClick" >Save</button>
+      </div>
+    </div>
+  </div>
+
+
+@if(!string.IsNullOrWhiteSpace(UserId)) //Editing
+{
+    <div class="card" style="width:15rem;">
+        <div class="card-header">User belongs to roles</div>
+      <div class="card-body">
+
+          @for(int index=0; index<_allRoles.Count(); index++)
+          {
+            <p class="card-text">
+                <div class="form-outline">
+                  <input type="checkbox" id=@("id"+index) class="form-check-input" @bind="_sendActivationEmail" />
+                  <label class="form-check-label" for=@("id"+index)>@_allRoles[index]</label>
+                </div> 
+            </p>
+          }
+        </div>
+    </div>
+}
+}
+
+
+
+@code {
+    [Parameter]
+    public string UserId { get; set; } = "";
+
+    private string _pageTitle = "User"; //Default title
+    private string _navigateTo = "/Users";
+    private ApplicationUser _user = new ApplicationUser();
+    private List<string> _allRoles;
+    private bool _sendActivationEmail;
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+        {
+            _pageTitle = "Add User";
+        }
+        else
+        {
+            _user = await _userManager.FindByIdAsync(UserId);
+            //var roles = _userManager.GetRolesAsync(_user)
+            _pageTitle = "Edit User";
+        }
+        _allRoles = await _roleManager.Roles.Select(r=>r.Name).ToListAsync();
+        //return base.OnInitializedAsync();
+    }
+
+    private async void OnSaveClick()
+    {
+        if (_pageTitle.StartsWith("Add"))
+        {
+            _user.UserName = _user.Email;
+            _user.EmailConfirmed = false;
+            _user.PhoneNumberConfirmed = false;
+            if (string.IsNullOrWhiteSpace(_user.UserEntityType))
+                _user.UserEntityType = "Guest";
+
+            var result = await _userManager.CreateAsync(_user);
+        }
+        else
+        {
+            var oldUser = await _userManager.FindByIdAsync(_user.Id);
+            if (oldUser == null)
+                throw new ApplicationException("User not found");
+
+            if (oldUser.NormalizedEmail != _user.Email.ToUpper())
+                _user.EmailConfirmed = false;
+            if (oldUser.PhoneNumber != _user.PhoneNumber.ToUpper())
+                _user.PhoneNumberConfirmed = false;
+            if (string.IsNullOrWhiteSpace(_user.UserEntityType))
+                _user.UserEntityType = "Guest";
+
+            var result = await _userManager.UpdateAsync(_user);
+        }
+        _navigationManager.NavigateTo("/Users");
+
+    }
+}
